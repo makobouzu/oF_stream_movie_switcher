@@ -1,6 +1,3 @@
-ofxAudioFile
 ofxHapPlayer
 ofxOsc
 ofxPubSubOsc
-ofxGui
-ofxSoundObjects

@@ -56,6 +56,21 @@ void ofApp::exit(){
     human.close();
 }
 
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
+    if(key == ' '){
+        if(!keyChange){
+            setTime(&original);
+            setFrame(&original, &human);
+            keyChange = !keyChange;
+        }else{
+            setTime(&human);
+            setFrame(&human, &original);
+            keyChange = !keyChange;
+        }
+    }
+}
+
 void ofApp::setFrame(ofxHapPlayer *player1, ofxHapPlayer *player2){
     totalFrame = player1->getTotalNumFrames();
     currentFrame = player1->getCurrentFrame();

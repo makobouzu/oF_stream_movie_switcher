@@ -11,6 +11,7 @@ public:
     void update();
     void draw();
     void exit();
+    void keyPressed(int key);
     
     void eventListener(int value);
     void setTime(ofxHapPlayer *player1);
@@ -21,6 +22,7 @@ private:
     ofxHapPlayer human;
     bool wasPausedOriginal = false;
     bool wasPausedHuman    = true;
+    bool keyChange = false;
     
     const int RECEIVEPORT = 5445;
     const int SENDPORT = 54003;
