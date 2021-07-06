@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxHapPlayer.h"
 #include "ofxOscSubscriber.h"
 #include "ofxOscPublisher.h"
 
@@ -14,22 +13,20 @@ public:
     void keyPressed(int key);
     
     void eventListener(int value);
-    void setTime(ofxHapPlayer *player1);
-    void setFrame(ofxHapPlayer *player1, ofxHapPlayer *player2);
+    void setTime(ofVideoPlayer *players);
+    void setFrame(ofVideoPlayer *players, int num);
 
 private:
-    ofxHapPlayer original;
-    ofxHapPlayer human;
-    bool wasPausedOriginal = false;
-    bool wasPausedHuman    = true;
-    bool keyChange = false;
+    ofVideoPlayer videos[4];
+    std::vector<bool> wasPaused = {false, true, true, true};
     
     const int RECEIVEPORT = 5445;
     const int SENDPORT = 54003;
     
     double currentFrame = 0;
     double totalFrame   = 0;
+    float  ratio        = 0;
     double durationTime = 0;
     double currentTime  = 0;
-    float  ratio        = 0;
+    int    toggleValue  = 0;
 };
