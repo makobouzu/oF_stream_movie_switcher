@@ -7,9 +7,9 @@ void ofApp::setup(){
     ofBackground(0);
     
     videos[0].load("movies/original.mp4");
-    videos[1].load("movies/semaseg.mp4");
-    videos[2].load("movies/composite.mp4");
-    videos[3].load("movies/yolo.mp4");
+    videos[1].load("movies/human.mp4");
+    videos[2].load("movies/car.mp4");
+    videos[3].load("movies/bird.mp4");
     
     videos[0].setLoopState(OF_LOOP_NORMAL);
     videos[1].setLoopState(OF_LOOP_NORMAL);
@@ -84,6 +84,9 @@ void ofApp::setFrame(ofVideoPlayer *players, int num){
     wasPaused[num] = !wasPaused[num];
     videos[num].setFrame(currentFrame + 1);
     videos[num].play();
+    
+    toggleValue = num;
+    ofxPublishOsc("localhost", SENDPORT, "/toggle", toggleValue);
 }
 
 void ofApp::setTime(ofVideoPlayer *players){
@@ -97,13 +100,11 @@ void ofApp::setTime(ofVideoPlayer *players){
     durationTime = players[index].getDuration();
     currentTime  = ratio * players[index].getDuration();
 
-    if(std::isinf(currentTime)){
+    if(std::isinf(currentTime) || currentTime < 0){
         currentTime = 0;
     }
-    cout << currentTime << endl;
     ofxPublishOsc("localhost", SENDPORT, "/duration", durationTime);
     ofxPublishOsc("localhost", SENDPORT, "/time", currentTime);
-    ofxPublishOsc("localhost", SENDPORT, "/toggle", toggleValue);
 }
 
 void ofApp::eventListener(int value){

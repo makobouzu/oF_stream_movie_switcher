@@ -4,7 +4,7 @@
 //========================================================================
 int main( ){
     ofGLFWWindowSettings settings;
-    settings.setSize(1300, 800);
+    settings.setSize(1920, 1080);
     settings.setPosition({ glm::vec2{ 0, 0 } });
     auto window = ofCreateWindow(settings);
     auto app = std::make_shared<ofApp>();
