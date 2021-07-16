@@ -13,13 +13,16 @@ public:
     void keyPressed(int key);
     
     void eventListener(int value);
-    void setTime(ofVideoPlayer *players);
-    void setFrame(ofVideoPlayer *players, int num);
+    void setTime(ofVideoPlayer players);
+    void setFrame(ofVideoPlayer players, int num);
 
 private:
-    ofVideoPlayer videos[4];
+    ofVideoPlayer videos;
     std::vector<bool> wasPaused = {false, true, true, true};
     
+    float offsetWidth, offsetHeight;
+    
+    const string IPAdress = "localhost";
     const int RECEIVEPORT = 5445;
     const int SENDPORT = 54003;
     

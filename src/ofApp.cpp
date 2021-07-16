@@ -3,20 +3,17 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 //    ofSetVerticalSync(true);
+    ofSetFullscreen(true);
+//    ofHideCursor();
     ofSetFrameRate(60);
     ofBackground(0);
     
-    videos[0].load("movies/original.mp4");
-    videos[1].load("movies/human.mp4");
-    videos[2].load("movies/car.mp4");
-    videos[3].load("movies/bird.mp4");
+    videos.load("movies/sum_movie.mp4");
+    videos.setLoopState(OF_LOOP_NORMAL);
+    videos.play();
     
-    videos[0].setLoopState(OF_LOOP_NORMAL);
-    videos[1].setLoopState(OF_LOOP_NORMAL);
-    videos[2].setLoopState(OF_LOOP_NORMAL);
-    videos[3].setLoopState(OF_LOOP_NORMAL);
-    
-    videos[0].play();
+    offsetWidth  = (ofGetScreenWidth() - videos.getWidth()/2)/2;
+    offsetHeight = (ofGetScreenHeight() - videos.getHeight()/2)/2;
     
     ofxSubscribeOsc(RECEIVEPORT, "/param", [=](int value){
         eventListener(value);
@@ -26,33 +23,51 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    videos[0].update();
-    videos[1].update();
-    videos[2].update();
-    videos[3].update();
+    videos.update();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofRectangle videoRect(0, 0, videos[0].getWidth(), videos[0].getHeight());
-    videoRect.scaleTo(ofGetWindowRect());
+    ofRectangle videoRect(0, 0, videos.getWidth(), videos.getHeight());
+//    videoRect.scaleTo(ofGetWindowRect());
     if(wasPaused[0] == false){
-        videos[0].draw(videoRect.x, videoRect.y, videoRect.width, videoRect.height);
+        ofPushMatrix();
+            ofTranslate(offsetWidth, offsetHeight);
+            videos.draw(videoRect.x, videoRect.y, videoRect.width, videoRect.height);
+            ofPushStyle();
+                ofSetColor(0);
+                ofDrawRectangle(videoRect.x, videoRect.height/2, videoRect.width/2, videoRect.height/2);
+                ofDrawRectangle(videoRect.width/2, videoRect.y, videoRect.width/2, videoRect.height/2);
+            ofPopStyle();
+        ofPopMatrix();
     }else if(wasPaused[1] == false){
-        videos[1].draw(videoRect.x, videoRect.y, videoRect.width, videoRect.height);
+        ofPushMatrix();
+            ofTranslate(offsetWidth, offsetHeight);
+            ofTranslate(-1*videoRect.width/2, 0);
+            videos.draw(videoRect.x, videoRect.y, videoRect.width, videoRect.height);
+            ofPushStyle();
+                ofSetColor(0);
+                ofDrawRectangle(videoRect.x, videoRect.y, videoRect.width/2, videoRect.height/2);
+                ofDrawRectangle(videoRect.x, videoRect.height/2, videoRect.width/2, videoRect.height/2);
+            ofPopStyle();
+        ofPopMatrix();
     }else if(wasPaused[2] == false){
-        videos[2].draw(videoRect.x, videoRect.y, videoRect.width, videoRect.height);
-    }else if(wasPaused[3] == false){
-        videos[3].draw(videoRect.x, videoRect.y, videoRect.width, videoRect.height);
+        ofPushMatrix();
+            ofTranslate(offsetWidth, offsetHeight);
+            ofTranslate(0, -1*videoRect.height/2);
+            videos.draw(videoRect.x, videoRect.y, videoRect.width, videoRect.height);
+            ofPushStyle();
+                ofSetColor(0);
+                ofDrawRectangle(videoRect.x, videoRect.y, videoRect.width/2, videoRect.height/2);
+                ofDrawRectangle(videoRect.width/2, videoRect.y, videoRect.width/2, videoRect.height/2);
+            ofPopStyle();
+        ofPopMatrix();
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::exit(){
-    videos[0].closeMovie();
-    videos[1].closeMovie();
-    videos[2].closeMovie();
-    videos[3].closeMovie();
+    videos.closeMovie();
 }
 
 //--------------------------------------------------------------
@@ -61,7 +76,7 @@ void ofApp::keyPressed(int key){
         auto itr = std::find(wasPaused.begin(), wasPaused.end(), false);
         const int index = std::distance(wasPaused.begin(), itr);
         
-        if(index == 3){
+        if(index == 2){
             setTime(videos);
             toggleValue = 0;
             setFrame(videos, 0);
@@ -73,38 +88,35 @@ void ofApp::keyPressed(int key){
     }
 }
 
-void ofApp::setFrame(ofVideoPlayer *players, int num){
+void ofApp::setFrame(ofVideoPlayer players, int num){
     auto itr = std::find(wasPaused.begin(), wasPaused.end(), false);
     const int index = std::distance(wasPaused.begin(), itr);
     
-    currentFrame = players[index].getCurrentFrame();
+    currentFrame = players.getCurrentFrame();
     
     wasPaused[index] = !wasPaused[index];
-    videos[index].setPaused(wasPaused[index]);
     wasPaused[num] = !wasPaused[num];
-    videos[num].setFrame(currentFrame + 1);
-    videos[num].play();
     
     toggleValue = num;
-    ofxPublishOsc("localhost", SENDPORT, "/toggle", toggleValue);
+    ofxPublishOsc(IPAdress, SENDPORT, "/toggle", toggleValue);
 }
 
-void ofApp::setTime(ofVideoPlayer *players){
+void ofApp::setTime(ofVideoPlayer players){
     auto itr = std::find(wasPaused.begin(), wasPaused.end(), false);
     const int index = std::distance(wasPaused.begin(), itr);
     
-    currentFrame = players[index].getCurrentFrame();
-    totalFrame   = players[index].getTotalNumFrames();
+    currentFrame = players.getCurrentFrame();
+    totalFrame   = players.getTotalNumFrames();
     ratio        = currentFrame / totalFrame;
     
-    durationTime = players[index].getDuration();
-    currentTime  = ratio * players[index].getDuration();
+    durationTime = players.getDuration();
+    currentTime  = ratio * players.getDuration();
 
     if(std::isinf(currentTime) || currentTime < 0){
         currentTime = 0;
     }
-    ofxPublishOsc("localhost", SENDPORT, "/duration", durationTime);
-    ofxPublishOsc("localhost", SENDPORT, "/time", currentTime);
+    ofxPublishOsc(IPAdress, SENDPORT, "/duration", durationTime);
+    ofxPublishOsc(IPAdress, SENDPORT, "/time", currentTime);
 }
 
 void ofApp::eventListener(int value){
